@@ -7,20 +7,33 @@ import 'package:flutter_application_1/views/verify_email_view.dart';
 
 import 'firebase_options.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Check if Firebase has already been initialized
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        name: 'BenjiApp',
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    print('Firebase initialization error: $e');
+  }
 
   runApp(
     MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: const HomePage(),
-        routes: {
-          '/login/': (BuildContext context) => const LoginView(),
-          '/register/': (BuildContext context) => const RegisterView(),
-        }),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomePage(),
+      routes: {
+        '/login/': (BuildContext context) => const LoginView(),
+        '/register/': (BuildContext context) => const RegisterView(),
+      },
+    ),
   );
 }
 
@@ -30,25 +43,27 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ),
+      future: Future.value(true),
       builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            final user = FirebaseAuth.instance.currentUser;
-            if (user != null) {
-              if (user.emailVerified) {
-                print('Email is verified');
-              } else {
-                return const VerifyEmailView();
-              }
+        if (snapshot.connectionState == ConnectionState.done) {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            if (user.emailVerified) {
+              print('Email is verified');
             } else {
-              return const LoginView();
+              return const VerifyEmailView();
             }
-            return const Text('Done');
-          default:
-            return const CircularProgressIndicator();
+          } else {
+            return const LoginView();
+          }
+          return const Text('Done');
+        } else {
+          // Show a loading indicator while Firebase is initializing
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
       },
     );

@@ -61,13 +61,19 @@ class _RegisterViewState extends State<RegisterView> {
                               password: password,
                             );
                             print(userCredential);
-                          } on FirebaseAuthException catch (e) {
+                          } on FirebaseAuthException catch (e, stackTrace) {
                             if (e.code == 'weak-password') {
                               print('weak password');
                             } else if (e.code == 'email-already-in-use') {
                               print('Email is already in use');
                             } else if (e.code == 'invalid-email') {
                               print('invlaid email entered');
+                            } else {
+                              print(e.code);
+                              print(e);
+                              print(e.message);
+                              // get all the error info
+                              print(stackTrace);
                             }
                           }
                         },

@@ -60,8 +60,8 @@ class DefaultFirebaseOptions {
     storageBucket: 'mynotes-flutter-project9870.appspot.com',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBdkaLsL2SdaQH9V5CmpTML9o4euJQm0d8',
+    static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCHQOGiE9x3jwaop_JAU2RmkZsoeY_i500',
     appId: '1:481366828690:ios:19fa73a08350dfe1e2e84b',
     messagingSenderId: '481366828690',
     projectId: 'mynotes-flutter-project9870',
@@ -69,6 +69,8 @@ class DefaultFirebaseOptions {
     iosClientId: '481366828690-htuqb3j1nui19l1m1o1qrp9qh1ks1pke.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterApplication1',
   );
+
+
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBdkaLsL2SdaQH9V5CmpTML9o4euJQm0d8',
