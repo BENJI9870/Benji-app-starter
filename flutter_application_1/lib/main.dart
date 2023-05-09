@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/views/login_view.dart';
 import 'package:flutter_application_1/views/register_view.dart';
 import 'package:flutter_application_1/views/verify_email_view.dart';
-
+import 'dart:developer' as devtools show log;
 import 'firebase_options.dart';
 
 void main() async {
@@ -34,6 +34,7 @@ void main() async {
       routes: {
         '/login/': (BuildContext context) => const LoginView(),
         '/register/': (BuildContext context) => const RegisterView(),
+        '/notes/': (BuildContext context) => const NotesView(),
       },
     ),
   );
@@ -59,51 +60,15 @@ class HomePage extends StatelessWidget {
             return const LoginView();
           }
         } else {
-          // Show a loading indicator while Firebase is initializing
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return const CircularProgressIndicator();
         }
       },
     );
   }
 }
-// class _AccountConfirmationState extends State<AccountConfirmation> {
 
-//     late Timer _timer;
+enum MenuAction { logout }
 
-//     @override
-//     void initState() {
-//       super.initState();
-
-//       _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-//       await FirebaseAuth.instance.currentUser?.reload();
-//       final user = FirebaseAuth.instance.currentUser;
-//         if (user?.emailVerified ?? false) {
-//           timer.cancel();
-//           Navigator.pop(context, true);
-//         }
-//       });
-//     }
-
-//     @override
-//     void dispose() {
-//       super.dispose();
-//       _timer.cancel();
-//     }
-
-//     @override
-//     Widget build(BuildContext context) {
-//       return const Scaffold(
-//             body: Center(
-//               child: CircularProgressIndicator(),
-//             ),
-//       );
-//     }
-
-// }
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
 
@@ -115,9 +80,61 @@ class _NotesViewState extends State<NotesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Main UI'),
+        appBar: AppBar(
+          title: const Text('Main UI'),
+          actions: [
+            PopupMenuButton<MenuAction>(
+              onSelected: (value) async {
+                switch (value) {
+                  case MenuAction.logout:
+                    final shouldLogout = await showLogOutDialog(context);
+                    if (shouldLogout) {
+                      FirebaseAuth.instance.signOut();
+                      Navigator.of(context)
+                          .pushNamedAndRemoveUntil(
+                            '/login/', 
+                            (_) => false,
+                          );
+                    }
+                }
+              },
+              itemBuilder: (context) {
+                return const [
+                  PopupMenuItem<MenuAction>(
+                    value: MenuAction.logout,
+                    child: Text('Log out'),
+                  ),
+                ];
+              },
+            )
+          ],
         ),
-    );
+        body: const Text('Benji Is Great'));
   }
+}
+
+Future<bool> showLogOutDialog(BuildContext context) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Log out'),
+          ),
+        ],
+      );
+    },
+  ).then((value) => value ?? false);
 }
